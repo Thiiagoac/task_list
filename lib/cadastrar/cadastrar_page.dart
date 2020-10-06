@@ -2,31 +2,41 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:task_list/cadastrar/cadastrar_page.dart';
-import 'package:task_list/tarefas/tarefa_page.dart';
 import 'package:task_list/widgets/expanded_button.dart';
 
-class LoginPage extends StatefulWidget {
+class CadastrarPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _CadastrarPageState createState() => _CadastrarPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _CadastrarPageState extends State<CadastrarPage> {
   final DBRef = FirebaseDatabase.instance.reference();
-  final usuarios = FirebaseDatabase.instance.reference().child('Usuarios');
 
-  final _formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  TextEditingController emailController;
+  TextEditingController senhaController;
+  TextEditingController nomeController;
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController senhaController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    senhaController = TextEditingController();
+    nomeController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    senhaController.dispose();
+    nomeController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    print("Rebuild");
     var sizeScreen = MediaQuery.of(context).size;
+    print("rebuild");
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Row(
           children: <Widget>[
@@ -66,39 +76,19 @@ class _LoginPageState extends State<LoginPage> {
                         height: 20,
                       ),
                       Text(
-                        "Login",
+                        "Cadastro",
                         style: TextStyle(fontSize: 20),
                       ),
                       SizedBox(
                         height: 20,
                       ),
-                      Form(key: _formKey, child: _formLogin(context))
+                      _formLogin(context)
                     ],
                   ),
                 ),
               ),
               SizedBox(
                 height: 13,
-              ),
-              FlatButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                color: Theme.of(context).backgroundColor,
-                textColor: Colors.black,
-                disabledColor: Colors.grey,
-                disabledTextColor: Colors.black,
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => CadastrarPage(),
-                  ));
-                },
-                child: Text(
-                  "Cadastre-se",
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
             ],
           ),
@@ -107,24 +97,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    emailController.dispose();
-    senhaController.dispose();
-  }
-
   Widget _formLogin(BuildContext context) {
     return Column(
       children: <Widget>[
         TextFormField(
+          controller: nomeController,
+          decoration: InputDecoration(
+            hintText: "Digite seu nome",
+            labelText: "Nome",
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(
+                  color: Colors.black, style: BorderStyle.solid, width: 2),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        TextFormField(
           controller: emailController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Por favor digite o e-mail';
-            }
-            return null;
-          },
           decoration: InputDecoration(
             hintText: "Digite seu e-mail",
             labelText: "E-mail",
@@ -140,12 +133,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
         TextFormField(
           controller: senhaController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Por favor digite a senha';
-            }
-            return null;
-          },
           obscureText: true,
           decoration: InputDecoration(
             hintText: "Digite sua senha",
@@ -164,9 +151,18 @@ class _LoginPageState extends State<LoginPage> {
         ExpandedRaisedButton(
           padding: const EdgeInsets.symmetric(vertical: 10),
           onPressed: () {
-            if (_formKey.currentState.validate()) {
-              fazerLogin(context, emailController.text, senhaController.text);
-            }
+            DBRef.child('Usuarios')
+                .push()
+                .child("user")
+                .set({
+              'nome': nomeController.text,
+              'email': emailController.text,
+              'senha': senhaController.text,
+            }).asStream();
+            nomeController.clear();
+            emailController.clear();
+            senhaController.clear();
+            Navigator.of(context).pop();
           },
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22.0),
@@ -177,46 +173,13 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Entrar',
+                'Cadastrar',
                 style: TextStyle(fontSize: 18),
               ),
-              SizedBox(
-                width: 5,
-              ),
-              Icon(Icons.exit_to_app),
             ],
           ),
         ),
       ],
     );
-  }
-
-  void fazerLogin(BuildContext context, String email, String senha) async {
-    DataSnapshot dataValues = await usuarios.once().then((value) => value);
-    Map<dynamic, dynamic> values = dataValues.value;
-    bool userExist = false;
-
-    values.forEach((key, values) {
-      if (values['user']['senha'] == senha &&
-          values['user']['email'] == email) {
-        userExist = true;
-        print(key);
-      }
-    });
-
-    if (userExist) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => ListaTarefasPage(),
-        ),
-      );
-    } else {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text('Houve um erro ao tentar realizar o login'),
-        duration: Duration(seconds: 3),
-      ));
-      emailController.clear();
-      senhaController.clear();
-    }
   }
 }
