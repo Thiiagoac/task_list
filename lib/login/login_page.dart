@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_list/cadastrar/cadastrar_page.dart';
 import 'package:task_list/tarefas/tarefa_page.dart';
 import 'package:task_list/widgets/expanded_button.dart';
@@ -15,26 +16,21 @@ class _LoginPageState extends State<LoginPage> {
   final DBRef = FirebaseDatabase.instance.reference();
   final usuarios = FirebaseDatabase.instance.reference().child('Usuarios');
 
-  final _formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController senhaController = TextEditingController();
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController senhaController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    print("Rebuild");
-    var sizeScreen = MediaQuery.of(context).size;
+    print("rebuild");
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Row(
           children: <Widget>[
-            SvgPicture.asset(
-              'assets/images/logo.svg',
-              width: 32,
-              height: 32,
-            ),
             Text("TaskList"),
           ],
         ),
@@ -42,8 +38,6 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.only(left: 15, right: 15, top: 15),
-          width: sizeScreen.width,
-          height: sizeScreen.height * 0.875,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -196,10 +190,12 @@ class _LoginPageState extends State<LoginPage> {
     Map<dynamic, dynamic> values = dataValues.value;
     bool userExist = false;
 
+    final prefs = await SharedPreferences.getInstance();
     values.forEach((key, values) {
       if (values['user']['senha'] == senha &&
           values['user']['email'] == email) {
         userExist = true;
+        prefs.setString('iduser', key);
         print(key);
       }
     });

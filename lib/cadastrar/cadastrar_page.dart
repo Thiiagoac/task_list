@@ -40,11 +40,6 @@ class _CadastrarPageState extends State<CadastrarPage> {
       appBar: AppBar(
         title: Row(
           children: <Widget>[
-            SvgPicture.asset(
-              'assets/images/logo.svg',
-              width: 32,
-              height: 32,
-            ),
             Text("TaskList"),
           ],
         ),
