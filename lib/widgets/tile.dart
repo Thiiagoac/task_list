@@ -25,7 +25,7 @@ class Tile extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: Colors.blue[100],
         borderRadius: new BorderRadius.circular(15),
       ),
       padding: this.padding,
@@ -39,7 +39,7 @@ class Tile extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: _lineWidth,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                   Expanded(
                     child: Container(
@@ -47,7 +47,7 @@ class Tile extends StatelessWidget {
                       child: Text(
                         title,
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontSize: 16),
                       ),

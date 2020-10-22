@@ -195,6 +195,7 @@ class _LoginPageState extends State<LoginPage> {
       if (values['user']['senha'] == senha &&
           values['user']['email'] == email) {
         userExist = true;
+        prefs.setString('email', email);
         prefs.setString('iduser', key);
         print(key);
       }
@@ -203,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
     if (userExist) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => ListaTarefasPage(),
+          builder: (context) => ListaTarefasPage(email: email,),
         ),
       );
     } else {

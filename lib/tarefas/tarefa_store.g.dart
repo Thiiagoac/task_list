@@ -24,17 +24,25 @@ mixin _$TarefaStore on _TarefaStore, Store {
     });
   }
 
-  final _$_TarefaStoreActionController = ActionController(name: '_TarefaStore');
+  final _$addTaskAsyncAction = AsyncAction('_TarefaStore.addTask');
 
   @override
-  void addTask(String tarefa) {
-    final _$actionInfo = _$_TarefaStoreActionController.startAction(
-        name: '_TarefaStore.addTask');
-    try {
-      return super.addTask(tarefa);
-    } finally {
-      _$_TarefaStoreActionController.endAction(_$actionInfo);
-    }
+  Future<void> addTask(String tarefa) {
+    return _$addTaskAsyncAction.run(() => super.addTask(tarefa));
+  }
+
+  final _$loadTasksAsyncAction = AsyncAction('_TarefaStore.loadTasks');
+
+  @override
+  Future<dynamic> loadTasks() {
+    return _$loadTasksAsyncAction.run(() => super.loadTasks());
+  }
+
+  final _$removerTaskAsyncAction = AsyncAction('_TarefaStore.removerTask');
+
+  @override
+  Future<dynamic> removerTask(int index) {
+    return _$removerTaskAsyncAction.run(() => super.removerTask(index));
   }
 
   @override
